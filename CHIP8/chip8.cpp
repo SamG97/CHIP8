@@ -2,12 +2,15 @@
 #include <string>
 #include <cstdlib>
 #include "chip8.h"
+
 using std::begin;
 using std::end;
 using std::ifstream;
-using std::ios;
-
-static const size_t PROGRAM_SIZE = 4096 - 512;
+using std::ios_base;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::hex;
 
 unsigned char chip8_fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -52,7 +55,7 @@ void chip8::initialise() {
 }
 
 void printUnknownOpcode(unsigned short opcode) {
-    std::cout << "Unknown opcode: 0x" << std::hex << +opcode << std::endl;
+    cout << "Unknown opcode: 0x" << hex << +opcode << endl;
 }
 
 void chip8::emulateCycle() {
@@ -283,14 +286,12 @@ void chip8::emulateCycle() {
                      // increased by 1 for each value written, but I itself is left unmodified
             for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
                 memory[I + i] = V[i];
-            I += ((opcode & 0x0F00) >> 8) + 1;
             pc += 2;
             break;
         case 0x0065: // 0FX65: Fills V0 to VX (including VX) with values from memory starting at address I. The offset
                      // from I is increased by 1 for each value written, but I itself is left unmodified. 
             for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
                 V[i] = memory[I + i];
-            I += ((opcode & 0x0F00) >> 8) + 1;
             pc += 2;
             break;
         default:
@@ -306,28 +307,28 @@ void chip8::emulateCycle() {
 
     if (sound_timer > 0) {
         if (sound_timer == 1)
-            std::cout << "BEEP!" << std::endl;
+            cout << "BEEP!" << endl;
         --sound_timer;
     }
 }
 
 bool chip8::loadGame(string filename) {
-    std::ifstream f;
-    f.open(filename, std::ios_base::binary);
+    ifstream f;
+    f.open(filename, ios_base::binary);
     if (!f.good()) {
-        std::cerr << "Error reading file " << filename << std::endl;
+        cerr << "Error reading file " << filename << endl;
         return false;
     }
-    f.read(reinterpret_cast<char*>(memory + 512), PROGRAM_SIZE);
+    f.read(reinterpret_cast<char*>(memory + 512), program_size);
     if (!f.good() && !f.eof()) {
-        std::cerr << "error reading " << filename << std::endl;
+        cerr << "Error reading " << filename << endl;
         return false;
     }
     if (f.eof())
         return true;
     f.get();
     if (!f.eof()) {
-        std::cerr << filename << " is too long" << std::endl;
+        cerr << filename << " is too long" << endl;
         return false;
     }
     return true;

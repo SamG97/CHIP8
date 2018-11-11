@@ -1,8 +1,10 @@
 #ifndef CHIP8_CHIP8_H
 #define CHIP8_CHIP8_H
-
+static const size_t program_size = 4096 - 512;
 #endif //CHIP8_CHIP8_H
+
 #include <iostream>
+
 using std::string;
 
 class chip8 {

@@ -1,20 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Project description
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// Name: myChip8
-//
-// Author: Laurence Muller
-// Contact: laurence.muller@gmail.com
-//
-// License: GNU General Public License (GPL) v2 
-// ( http://www.gnu.org/licenses/old-licenses/gpl-2.0.html )
-//
-// Copyright (C) 2011 Laurence Muller / www.multigesture.net
-///////////////////////////////////////////////////////////////////////////////
-
 #include <stdio.h>
 #include <GL/glut.h>
 #include "chip8.h"
+
+using std::cout;
+using std::endl;
 
 static const int screen_width = 64;
 static const int screen_height = 32;
@@ -34,7 +23,7 @@ chip8 chip;
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        std::cout << "Usage: chip8 <game>" << std::endl;
+        cout << "Usage: chip8 <game>" << endl;
         return EXIT_FAILURE;
     }
 
@@ -43,7 +32,7 @@ int main(int argc, char **argv) {
     chip.initialise();
     if (!chip.loadGame(game))
         return EXIT_FAILURE;
-    std::cout << "Successfully loaded game" << std::endl;
+    cout << "Successfully loaded game" << endl;
 
     // Setup OpenGL
     glutInit(&argc, argv);
