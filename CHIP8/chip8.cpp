@@ -9,24 +9,23 @@ using std::ios;
 
 static const size_t PROGRAM_SIZE = 4096 - 512;
 
-unsigned char chip8_fontset[80] =
-{
-		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-		0x20, 0x60, 0x20, 0x20, 0x70, // 1
-		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-		0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-		0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-		0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-		0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-		0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+unsigned char chip8_fontset[80] = {
+	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+	0x20, 0x60, 0x20, 0x20, 0x70, // 1
+	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+	0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+	0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+	0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+	0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
 void chip8::initialise() {
@@ -52,8 +51,8 @@ void chip8::initialise() {
 	sound_timer = 0;
 }
 
-void printUnknownOpcode(short opcode) {
-	std::cout << "Unknown opcode: 0x" << opcode << std::endl;
+void printUnknownOpcode(unsigned short opcode) {
+	std::cout << "Unknown opcode: 0x" << std::hex << +opcode << std::endl;
 }
 
 void chip8::emulateCycle() {
@@ -85,13 +84,13 @@ void chip8::emulateCycle() {
 		pc = opcode & 0x0FFF;
 		break;
 	case 0x3000: // 3XNN: Skips the next instruction if VX equals NN
-		if (V[(opcode & 0x0F00) >> 8] == opcode & 0x00FF)
+		if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF))
 			pc += 4;
 		else
 			pc += 2;
 		break;
 	case 0x4000: // 4XNN: Skips the next instruction if VX doesn't equal NN
-		if (V[(opcode & 0x0F00) >> 8] != opcode & 0x00FF)
+		if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00FF))
 			pc += 4;
 		else
 			pc += 2;
@@ -158,7 +157,7 @@ void chip8::emulateCycle() {
 			pc += 2;
 			break;
 		case 0x000E: // 8XYE: Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
-			V[0xF] = (V[(opcode & 0x0F00) >> 8] & 0x80) >> 7;
+			V[0xF] = V[(opcode & 0x0F00) >> 8] >> 7;
 			V[(opcode & 0x0F00) >> 8] <<= 1;
 			pc += 2;
 			break;
@@ -181,7 +180,7 @@ void chip8::emulateCycle() {
 		break;
 	case 0xC000: // CXNN: Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and
 				 // NN
-		V[(opcode & 0x0F00) >> 8] = rand() & (opcode & 0x00FF);
+		V[(opcode & 0x0F00) >> 8] = (rand() % 0xFF) & (opcode & 0x00FF);
 		pc += 2;
 		break;
 	case 0xD000: // DXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
@@ -195,15 +194,15 @@ void chip8::emulateCycle() {
 		unsigned short pixel;
 
 		V[0xF] = 0;
-		for (int yline = 0; yline < height; yline++)
-		{
+		for (int yline = 0; yline < height; yline++) {
 			pixel = memory[I + yline];
-			for (int xline = 0; xline < 8; xline++)
-			{
+			for (int xline = 0; xline < 8; xline++) {
 				if ((pixel & (0x80 >> xline)) != 0)
 				{
 					if (gfx[(x + xline + ((y + yline) * 64))] == 1)
+					{
 						V[0xF] = 1;
+					}
 					gfx[x + xline + ((y + yline) * 64)] ^= 1;
 				}
 			}
@@ -244,7 +243,6 @@ void chip8::emulateCycle() {
 				if (key[i] != 0) {
 					V[(opcode & 0x0F00) >> 8] = i;
 					keyPressed = true;
-					break;
 				}
 			}
 
@@ -283,19 +281,22 @@ void chip8::emulateCycle() {
 			break;
 		case 0x0055: // 0FX55: Stores V0 to VX (including VX) in memory starting at address I. The offset from I is
 					 // increased by 1 for each value written, but I itself is left unmodified
-			for (int i = 0; i < 16; ++i)
+			for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
 				memory[I + i] = V[i];
+			I += ((opcode & 0x0F00) >> 8) + 1;
 			pc += 2;
 			break;
 		case 0x0065: // 0FX65: Fills V0 to VX (including VX) with values from memory starting at address I. The offset
 					 // from I is increased by 1 for each value written, but I itself is left unmodified. 
-			for (int i = 0; i < 16; ++i)
+			for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
 				V[i] = memory[I + i];
+			I += ((opcode & 0x0F00) >> 8) + 1;
 			pc += 2;
 			break;
 		default:
 			printUnknownOpcode(opcode);
 		}
+		break;
 	default:
 		printUnknownOpcode(opcode);
 	}
@@ -312,7 +313,7 @@ void chip8::emulateCycle() {
 
 bool chip8::loadGame(string filename) {
 	std::ifstream f;
-	f.open(filename);
+	f.open(filename, std::ios_base::binary);
 	if (!f.good()) {
 		std::cerr << "Error reading file " << filename << std::endl;
 		return false;
@@ -330,8 +331,4 @@ bool chip8::loadGame(string filename) {
 		return false;
 	}
 	return true;
-}
-
-void chip8::setKeys() {
-
 }

@@ -10,7 +10,6 @@ public:
 	void initialise();
 	bool loadGame(string);
 	void emulateCycle();
-	void setKeys();
 	bool drawFlag;
 	unsigned char key[16];
 	unsigned char gfx[64 * 32];
